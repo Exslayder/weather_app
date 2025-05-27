@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Weather App</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body class="min-h-screen text-white flex items-center justify-center p-4">
+
+  {% if not weather %}
+    <div class="w-full max-w-sm bg-black bg-opacity-80 rounded-xl p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold">Weather Forecast</h1>
+        <a href="/history" class="text-blue-300 hover:underline">History</a>
+      </div>
+
+      <form id="weather-form" action="/weather" method="post" class="relative">
+        <input
+          id="city-input"
+          type="text"
+          name="city"
+          placeholder="Enter city"
+          required
+          class="w-full px-4 py-2 rounded-lg text-black border-none outline-none focus:outline-none appearance-none"
+          autocomplete="off"
+        />
+        <ul id="suggestions" class="border bg-white text-black absolute w-full z-10"></ul>
+        <button
+          type="submit"
+          class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg transition"
+        >
+          Get
+        </button>
+      </form>
+
+      {% if last_city %}
+        <p class="mt-4 text-center">
+          Last:
+          <a href="/weather?city={{ last_city|urlencode }}" class="underline">
+            {{ last_city }}
+          </a>
+        </p>
+      {% endif %}
+    </div>
+
+  {% else %}
+    <!-- Двухпанельный layout после поиска -->
+    <div class="grid grid-cols-1 md:grid-cols-2 h-full w-full">
+
+      <!-- Левая панель -->
+      <div class="p-8 flex flex-col bg-black bg-opacity-80">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-4xl font-bold">Weather Forecast</h1>
+          <a href="/history" class="text-blue-300 hover:underline">History</a>
+        </div>
+
+        <form id="weather-form" action="/weather" method="post" class="relative mb-8">
+          <input
+            id="city-input"
+            type="text"
+            name="city"
+            placeholder="Enter city"
+            required
+            class="w-full px-4 py-2 rounded-lg text-black border-none outline-none focus:outline-none appearance-none"
+            autocomplete="off"
+          />
+          <ul id="suggestions" class="border bg-white text-black absolute w-full z-10"></ul>
+          <button
+            type="submit"
+            class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg transition"
+          >
+            Get
+          </button>
+        </form>
+
+        <div class="mt-4">
+          <h2 class="text-3xl font-semibold">{{ city }}</h2>
+          <p class="opacity-80 mb-6">
+            {% set date = weather.hourly.time[0].split('T')[0] %}
+            {{ date }}
+          </p>
+
+          <div class="flex items-center mb-4">
+            <p class="text-6xl font-extrabold mr-4">
+              {{ weather.hourly.temperature_2m[0] }}°C
+            </p>
+            <div class="text-6xl">
+              {% set code = weather.hourly.weathercode[0] %}
+              {% if code == 0 %}☀️
+              {% elif code in [1,2,3] %}☁️
+              {% elif code in [61,63,65] %}🌧️
+              {% elif code in [71,73,75] %}🌨️
+              {% else %}🌥️{% endif %}
+            </div>
+          </div>
+
+          <p class="uppercase text-xl opacity-80">
+            {% if code == 0 %}Clear
+            {% elif code in [1,2,3] %}Cloudy
+            {% elif code in [61,63,65] %}Rain
+            {% elif code in [71,73,75] %}Snow
+            {% else %}Partly Cloudy{% endif %}
+          </p>
+        </div>
+      </div>
+
+      <!-- Правая панель -->
+      <div class="p-8 bg-indigo-900 bg-opacity-80 overflow-auto">
+        <h3 class="text-2xl font-semibold mb-4">Hourly Forecast</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {% for i in range(0,24) %}
+            {% set t = weather.hourly.time[i].split('T')[1] %}
+            {% set temp = weather.hourly.temperature_2m[i] %}
+            {% set code = weather.hourly.weathercode[i] %}
+            <div class="bg-white bg-opacity-20 rounded-xl p-4 flex flex-col items-center">
+              <p class="text-sm mb-2">{{ t }}</p>
+              <div class="text-3xl mb-2">
+                {% if code == 0 %}☀️
+                {% elif code in [1,2,3] %}☁️
+                {% elif code in [61,63,65] %}🌧️
+                {% elif code in [71,73,75] %}🌨️
+                {% else %}🌥️{% endif %}
+              </div>
+              <p class="font-semibold">{{ temp }}°</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+  {% endif %}
+
+  <script src="/static/js/script.js"></script>
+</body>
+</html>

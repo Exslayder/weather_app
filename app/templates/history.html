@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Search History</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body class="min-h-screen text-white flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-black bg-opacity-80 rounded-xl p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-2xl font-bold">Search History</h1>
+      <a href="/" class="text-blue-300 hover:underline">← Back</a>
+    </div>
+
+    {% if history %}
+      <ul>
+        {% for entry in history %}
+          <li class="py-1 border-b border-gray-600">{{ entry.city }} — {{ entry.count }} time{{ "s" if entry.count > 1 else "" }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No searches yet.</p>
+    {% endif %}
+  </div>
+</body>
+</html>
